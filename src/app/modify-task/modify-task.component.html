@@ -1,0 +1,151 @@
+<div class="Container" style="padding-top:.5rem;">
+
+  <form  #TaskForm="ngForm"    (ngSubmit)="onSubmit()" >
+      
+    <div ngModelGroup="model" name="modelgroup" #modelgroup="ngModelGroup"  appStartEndDateComparison> 
+        <div class="form-group row" style="padding-left:1rem;" *ngIf="isSuccess">
+            <div class="col-7" >
+                <div class="alert alert-success" >
+                          {{successMsg}}
+                 </div>
+                 
+              </div>
+        </div>
+        <div class="form-group row" style="padding-left:1rem;" *ngIf="isError">
+            <div class="col-7" >
+                <div class="alert alert-danger" >
+                          {{errorMsg}}
+                 </div>
+                 
+              </div>
+        </div>
+        <div class="form-group row" style="padding-left:1rem;" *ngIf="isValidationStDateError || isValidationEndDateError || isValidationSteDateError ">
+            <div class="col-7" >
+                <div class="alert alert-danger" *ngIf="isValidationStDateError">
+                    Parent task start date is {{pTaskStartDate|date:'shortDate'}}. Child task start date should be after that    
+                 </div>
+                 <div class="alert alert-danger" *ngIf="isValidationEndDateError">
+                    Parent task end date is {{pTaskEnddate|date:'shortDate'}}. Child task end date should be before that       
+                 </div>
+                 <div class="alert alert-danger" *ngIf="isValidationSteDateError">
+                    Parent task end date is {{pTaskStartDate|date:'shortDate'}}. Child task start date should be before that       
+                 </div>
+                 
+              </div>
+        </div>
+        
+        
+     <div class="form-group row" style="padding-left:1rem;">
+       <label for="inputTask" class="control-label col-2" style="text-align: left">Task:</label>
+        <div class="col-5">
+        <input type="text" class="form-control" id="inputTask" name="taskName"  required [(ngModel)]="model.TaskName"
+           #taskName="ngModel" maxlength="20">
+           <div *ngIf="(taskName.touched && taskName.errors)">
+             <div class="alert alert-danger" 
+               *ngIf="taskName.errors.required">
+                 Task name is required
+              </div>
+              <div class="alert alert-danger" 
+                *ngIf="taskName.errors.maxlength">
+                 Task name should be max {{ nameField.errors.maxlength.requiredLength }} characters long
+              </div>
+           </div>
+        </div>
+      </div>
+      <div class="form-group row" style="padding-left:1rem;">
+          <label for="inputPriority" class="control-label col-2" style="text-align: left">Priority:</label>
+           <div class="col-5">
+           
+           <input type="range" min="0" max="30" class="custom-range" value="model.Priority" id="inputPriority" 
+           name="inputPriority" [(ngModel)]="model.Priority"   #inputPriority="ngModel" oninput="ageOutputId.value = inputPriority.value">
+           
+           <output name="ageOutputName" id="ageOutputId">0</output>
+           </div>
+         </div>
+          
+           <div class="form-group row" style="padding-left:1rem;">
+              <label for="inputParent" class="control-label col-2" style="text-align: left">Parent Task:</label>
+             
+              <div class="col-5">
+                <div class="input-group mb-3">
+                  <select class="custom-select" id="inputParent" name="inputParent"  [(ngModel)]="model.ParentTaskId"
+                  >
+                    
+                   
+                 
+                 <option *ngFor="let task of ParentTasks" [value]="task.TaskId" [selected]="model.ParentTaskId==null||task.TaskId===model.ParentTaskId" >
+                                  {{ task.TaskName }}
+                 </option>
+                   
+                    
+                  </select>
+                  
+                 
+
+                </div>
+              </div>
+           </div>
+           <div class="form-group row" style="padding-left:1rem;">
+            <label for="startDate" class="control-label col-2" style="text-align: left">Start Date:</label>
+            <div class="input-group col-5">
+               
+               <input  class="form-control" matInput [matDatepicker]="startDate"  name="startdate" required [(ngModel)]="model.StartDate"
+               #startdate="ngModel">
+               <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+               <mat-datepicker #startDate></mat-datepicker>
+               
+               
+              
+            </div>
+           </div>
+           <div class="form-group row" style="padding-left:1rem;">
+              
+              <div class="col-5 offset-2" *ngIf="(startdate.touched && startdate.errors)">
+                  <div class="alert alert-danger" 
+                    *ngIf="startdate.errors.required">
+                      Start date is required
+                   </div>
+                   
+                </div>
+                  
+           </div>
+           
+           <div class="form-group row" style="padding-left:1rem;">
+              <label for="enddate" class="control-label col-2" style="text-align: left">End Date:</label>
+              <div class="input-group col-5">
+              
+                  <input class="form-control" matInput [matDatepicker]="endDate"  name="enddate" [min]="startEndDate" [(ngModel)]="model.EndDate"
+                  #enddate="ngModel" >
+                  <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+                  <mat-datepicker #endDate></mat-datepicker>
+                 
+               </div>
+             </div>
+             <div class="form-group row" style="padding-left:1rem;">
+                <div class="col-5 offset-2" *ngIf="(TaskForm.touched || TaskForm.dirty) && modelgroup.errors?.appStartEndDateComparison">
+                    <div class="alert alert-danger" >
+                              Start date must be lesser than EndDate
+                     </div>
+                     
+                  </div>
+            </div>
+             <div class="form-group row" style="padding-left:1rem;" *ngIf="!isEditMode">
+                <div class="col-1 offset-2 ">
+                    <button type="submit" class="btn btn-light" [disabled]="!TaskForm.valid">AddTask</button>
+                </div>
+                <div class="col-1 ">
+                    <button type="button" class="btn btn-light" (click)="ResetForm(TaskForm)">Reset</button>
+                </div>
+            </div>
+            <div class="form-group row" style="padding-left:1rem;" *ngIf="isEditMode">
+              <div class="col-1 offset-2 ">
+                  <button type="submit" class="btn btn-light" [disabled]="!TaskForm.valid">Update</button>
+              </div>
+              <div class="col-1 ">
+                  <button type="button" class="btn btn-light" (click)="CancelEdit()">Cancel</button>
+              </div>
+          </div>
+          </div>
+    </form>
+  
+</div>
